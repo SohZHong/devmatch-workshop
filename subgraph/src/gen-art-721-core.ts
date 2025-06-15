@@ -1,67 +1,27 @@
 import {
-  Approval as ApprovalEvent,
-  ApprovalForAll as ApprovalForAllEvent,
+  Transfer as TransferEvent,
   Mint as MintEvent,
-  Transfer as TransferEvent
-} from "../generated/GenArt721Core/GenArt721Core"
-import { Approval, ApprovalForAll, Mint, Transfer } from "../generated/schema"
-
-export function handleApproval(event: ApprovalEvent): void {
-  let entity = new Approval(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.owner = event.params.owner
-  entity.approved = event.params.approved
-  entity.tokenId = event.params.tokenId
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
-
-export function handleApprovalForAll(event: ApprovalForAllEvent): void {
-  let entity = new ApprovalForAll(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.owner = event.params.owner
-  entity.operator = event.params.operator
-  entity.approved = event.params.approved
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
-}
+} from '../generated/GenArt721Core/GenArt721Core';
+import { NFT } from '../generated/schema';
 
 export function handleMint(event: MintEvent): void {
-  let entity = new Mint(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity._to = event.params._to
-  entity._tokenId = event.params._tokenId
-  entity._projectId = event.params._projectId
-
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
-
-  entity.save()
+  let entity = new NFT(event.params._tokenId.toString());
+  entity.owner = event.params._to;
+  entity.tokenId = event.params._tokenId;
+  entity.contract = event.address;
+  entity.save();
 }
-
 export function handleTransfer(event: TransferEvent): void {
-  let entity = new Transfer(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  )
-  entity.from = event.params.from
-  entity.to = event.params.to
-  entity.tokenId = event.params.tokenId
+  // Retrieve NFT entity by ID
+  let entity = NFT.load(event.params.tokenId.toString());
 
-  entity.blockNumber = event.block.number
-  entity.blockTimestamp = event.block.timestamp
-  entity.transactionHash = event.transaction.hash
+  if (!entity) {
+    entity = new NFT(event.params.tokenId.toString());
+  }
 
-  entity.save()
+  entity.owner = event.params.to;
+  entity.contract = event.address;
+  entity.tokenId = event.params.tokenId;
+
+  entity.save();
 }

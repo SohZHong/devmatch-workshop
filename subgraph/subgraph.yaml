@@ -8,7 +8,7 @@ dataSources:
     name: GenArt721Core
     network: mainnet
     source:
-      address: "0xa7d8d9ef8D8Ce8992Df33D8b8CF4Aebabd5bD270"
+      address: '0xa7d8d9ef8D8Ce8992Df33D8b8CF4Aebabd5bD270'
       abi: GenArt721Core
       startBlock: 11437151
     mapping:
@@ -16,18 +16,12 @@ dataSources:
       apiVersion: 0.0.9
       language: wasm/assemblyscript
       entities:
-        - Approval
-        - ApprovalForAll
         - Mint
         - Transfer
       abis:
         - name: GenArt721Core
           file: ./abis/GenArt721Core.json
       eventHandlers:
-        - event: Approval(indexed address,indexed address,indexed uint256)
-          handler: handleApproval
-        - event: ApprovalForAll(indexed address,indexed address,bool)
-          handler: handleApprovalForAll
         - event: Mint(indexed address,indexed uint256,indexed uint256)
           handler: handleMint
         - event: Transfer(indexed address,indexed address,indexed uint256)
