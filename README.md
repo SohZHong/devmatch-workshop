@@ -41,8 +41,77 @@ graph init \
 Then, press `Enter` on subsequent inputs to use default values. Your CLI should look like this:
 [Subgraph Initialization](/readme-images/subgraph-initialization.png)
 
-Then:
+Then, go into the folder:
 
 ```bash
 cd nft-tracker-subgraph
 ```
+
+#### Step 2: Update `schema.graphql`
+
+Replace contents of `schema.graphql` with:
+
+```graphql
+type NFT @entity {
+  id: ID!
+  contract: Bytes!
+  owner: Bytes!
+  tokenId: BigInt!
+}
+```
+
+The schema defines what data will be saved in the subgraph’s database.
+Each NFT record represents a single token.
+• `id`: Unique identifier for the entity (we use `tokenId` as string).
+• `contract`: Address of the NFT contract.
+• `owner`: Who currently owns the NFT.
+• `tokenId`: The unique number of the NFT (on-chain).
+
+Lastly, input the following into the CLI to generate TypeScript bindings from your schema and ABI, so you can type-check mappings.
+
+```bash
+graph codegen
+```
+
+#### Step 3. Write the mappings
+
+Edit `src/mapping.ts` to contain:
+
+```typescript
+import {
+  Transfer as TransferEvent,
+  Mint as MintEvent,
+} from '../generated/GenArt721Core/GenArt721Core';
+import { NFT } from '../generated/schema';
+
+export function handleMint(event: MintEvent): void {
+  let entity = new NFT(event.params._tokenId.toString());
+  entity.owner = event.params._to;
+  entity.tokenId = event.params._tokenId;
+  entity.contract = event.address;
+  entity.save();
+}
+export function handleTransfer(event: TransferEvent): void {
+  // Retrieve NFT entity by ID
+  let entity = NFT.load(event.params.tokenId.toString());
+
+  if (!entity) {
+    entity = new NFT(event.params.tokenId.toString());
+  }
+
+  entity.owner = event.params.to;
+  entity.contract = event.address;
+  entity.tokenId = event.params.tokenId;
+
+  entity.save();
+}
+```
+
+These handlers define how to convert blockchain events into structured data.
+
+- handleMint: Creates a new NFT record.
+- handleTransfer: Updates ownership or creates the record if it’s missing (edge case).
+
+#### Step 4. Update `subgraph.yaml`
+
+Edit your `subgraph.yaml` to reflect the changes made
