@@ -39,7 +39,7 @@ graph init \
 | `nft-tracker-subgraph` | Your local folder name AND the internal project name for the CLI. |
 
 Then, press `Enter` on subsequent inputs to use default values. Your CLI should look like this:
-[Subgraph Initialization](/readme-images/subgraph-initialization.png)
+![Subgraph Initialization](/readme-images/subgraph-initialization.png)
 
 Then, go into the folder:
 
@@ -181,3 +181,50 @@ graph build
 
 - `graph codegen`: Generates TypeScript bindings from your schema and ABI, so you can type-check mappings.
 - `graph build`: Compiles everything into WebAssembly so The Graph node can run it.
+
+#### Step 6. Create a Subgraph in Subgraph Studio
+
+Go to [Subgraph Studio](https://thegraph.com/studio/) and connect your wallet.
+
+Subgraph Studio lets you create, manage, deploy, and publish subgraphs, as well as create and manage API keys.
+
+Click "Create a Subgraph". It is recommended to name the subgraph in Title Case: "Subgraph Name Chain Name".
+
+In our case, we can name it **"nft-tracker-ethereum"**
+
+#### Step 7. Deploy the Subgraph
+
+When you **deploy** a subgraph, you push it to [Subgraph Studio](https://thegraph.com/studio/), where you can test, stage and review it.
+
+1. **Authenticate**
+
+```bash
+graph auth <DEPLOY_KEY>
+```
+
+Authenticate and deploy your subgraph. The deploy key can be found on the subgraph's page in Subgraph Studio.
+
+![Deploy key](/readme-images/deploy-key.png)
+
+2. **Deploy**
+
+```
+graph deploy nft-tracker-ethereum
+```
+
+The CLI will ask for a version label. It's strongly recommended to use [semantic versioning](https://semver.org/), e.g. `0.0.1`.
+
+### 7. Review your subgraph
+
+If you’d like to test your subgraph, you can use run a sample query in the playground:
+
+```graphql
+{
+  nfts(first: 10) {
+    id
+    tokenId
+    owner
+    contract
+  }
+}
+```
