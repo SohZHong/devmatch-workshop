@@ -23,8 +23,26 @@ yarn global @graphprotocol/graph-cli
 ```bash
 graph init \
   --from-contract 0xa7d8d9ef8D8Ce8992Df33D8b8CF4Aebabd5bD270 \
-  --protocol ethereum \
   --network mainnet \
   --index-events \
   nft-tracker-subgraph
+```
+
+**What Each Flag Means**
+| Flag | Meaning |
+
+---
+
+| `--from-contract` | Tells The Graph CLI to auto-fetch the contract ABI and scaffold the subgraph around it. Saves you time. |
+| `--network` | Specifies which Ethereum network to use. Must match the chain the contract is on.
+| `--index-events` | Automatically detects all events from the ABI and creates stubs in `subgraph.yaml` and `mapping.ts`. You’ll edit these later. |
+| `nft-tracker-subgraph` | Your local folder name AND the internal project name for the CLI. |
+
+Then, press `Enter` on subsequent inputs to use default values. Your CLI should look like this:
+[Subgraph Initialization](/readme-images/subgraph-initialization.png)
+
+Then:
+
+```bash
+cd nft-tracker-subgraph
 ```
