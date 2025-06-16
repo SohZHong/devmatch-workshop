@@ -16,8 +16,7 @@ dataSources:
       apiVersion: 0.0.9
       language: wasm/assemblyscript
       entities:
-        - Mint
-        - Transfer
+        - NFT
       abis:
         - name: GenArt721Core
           file: ./abis/GenArt721Core.json
