@@ -17,3 +17,14 @@ Make sure you have the following installed:
 ```bash
 yarn global @graphprotocol/graph-cli
 ```
+
+#### 1. Initialize the Subgraph
+
+```bash
+graph init \
+  --from-contract 0xa7d8d9ef8D8Ce8992Df33D8b8CF4Aebabd5bD270 \
+  --protocol ethereum \
+  --network mainnet \
+  --index-events \
+  nft-tracker-subgraph
+```
