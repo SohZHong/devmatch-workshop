@@ -1,8 +1,5 @@
 # Devmatch The Graph Workshop
 
-> [!NOTE]
-> This is the second checkpoint for our workshop. If you missed the first checkpoint, [check the `checkpoint-one` branch README](https://github.com/SohZHong/devmatch-workshop/blob/checkpoint-one/README.md)
-
 ## 🚀 Workshop Navigation Guide
 
 This repository is structured into branches that represent **checkpoints** in the workshop.  
