@@ -20,7 +20,10 @@ interface NFTSearchResults {
 export async function getNFTs(
   first: number = 10,
   skip: number = 0
-): Promise<NFTSearchResults> {
-  const data = await graphClient.request(GET_NFTS_QUERY, { first, skip });
-  return data as NFTSearchResults;
+): Promise<NFT[]> {
+  const data: NFTSearchResults = await graphClient.request(GET_NFTS_QUERY, {
+    first,
+    skip,
+  });
+  return data.nfts;
 }
