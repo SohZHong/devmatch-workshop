@@ -3,6 +3,10 @@
     "GenArt721Core": {
       "address": "0xa7d8d9ef8D8Ce8992Df33D8b8CF4Aebabd5bD270",
       "startBlock": 11437151
+    },
+    "FNDNFT721": {
+      "address": "0x3B3ee1931Dc30C1957379FAc9aba94D1C48a5405",
+      "startBlock": 16158655
     }
   }
 }

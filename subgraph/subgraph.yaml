@@ -26,3 +26,51 @@ dataSources:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
       file: ./src/gen-art-721-core.ts
+  - kind: ethereum
+    name: FNDNFT721
+    network: mainnet
+    source:
+      address: '0xe7C29cba93ef8017C7824DD0f25923c38d08065c'
+      abi: FNDNFT721
+      startBlock: 16158655
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - Minted
+        - Transfer
+      abis:
+        - name: FNDNFT721
+          file: ./abis/FNDNFT721.json
+      eventHandlers:
+        - event: Approval(indexed address,indexed address,indexed uint256)
+          handler: handleApproval
+        - event: ApprovalForAll(indexed address,indexed address,bool)
+          handler: handleApprovalForAll
+        - event: BaseURIUpdated(string)
+          handler: handleBaseURIUpdated
+        - event: Minted(indexed address,indexed uint256,indexed string,string)
+          handler: handleMinted
+        - event: NFTCreatorMigrated(indexed uint256,indexed address,indexed address)
+          handler: handleNFTCreatorMigrated
+        - event: NFTMarketUpdated(indexed address)
+          handler: handleNFTMarketUpdated
+        - event: NFTMetadataUpdated(string,string,string)
+          handler: handleNFTMetadataUpdated
+        - event: NFTOwnerMigrated(indexed uint256,indexed address,indexed address)
+          handler: handleNFTOwnerMigrated
+        - event: PaymentAddressMigrated(indexed uint256,indexed address,indexed
+            address,address,address)
+          handler: handlePaymentAddressMigrated
+        - event: ProxyCallContractUpdated(indexed address)
+          handler: handleProxyCallContractUpdated
+        - event: TokenCreatorPaymentAddressSet(indexed address,indexed address,indexed uint256)
+          handler: handleTokenCreatorPaymentAddressSet
+        - event: TokenCreatorUpdated(indexed address,indexed address,indexed uint256)
+          handler: handleTokenCreatorUpdated
+        - event: TokenIPFSPathUpdated(indexed uint256,indexed string,string)
+          handler: handleTokenIPFSPathUpdated
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/fndnft-721.ts

@@ -4,3 +4,139 @@ type NFT @entity {
   owner: Bytes! # address
   tokenId: BigInt! # uint256
 }
+type Approval @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  approved: Bytes! # address
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ApprovalForAll @entity(immutable: true) {
+  id: Bytes!
+  owner: Bytes! # address
+  operator: Bytes! # address
+  approved: Boolean! # bool
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type BaseURIUpdated @entity(immutable: true) {
+  id: Bytes!
+  baseURI: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Minted @entity(immutable: true) {
+  id: Bytes!
+  creator: Bytes! # address
+  tokenId: BigInt! # uint256
+  indexedTokenIPFSPath: String! # string
+  tokenIPFSPath: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NFTCreatorMigrated @entity(immutable: true) {
+  id: Bytes!
+  tokenId: BigInt! # uint256
+  originalAddress: Bytes! # address
+  newAddress: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NFTMarketUpdated @entity(immutable: true) {
+  id: Bytes!
+  nftMarket: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NFTMetadataUpdated @entity(immutable: true) {
+  id: Bytes!
+  name: String! # string
+  symbol: String! # string
+  baseURI: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NFTOwnerMigrated @entity(immutable: true) {
+  id: Bytes!
+  tokenId: BigInt! # uint256
+  originalAddress: Bytes! # address
+  newAddress: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PaymentAddressMigrated @entity(immutable: true) {
+  id: Bytes!
+  tokenId: BigInt! # uint256
+  originalAddress: Bytes! # address
+  newAddress: Bytes! # address
+  originalPaymentAddress: Bytes! # address
+  newPaymentAddress: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ProxyCallContractUpdated @entity(immutable: true) {
+  id: Bytes!
+  proxyCallContract: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TokenCreatorPaymentAddressSet @entity(immutable: true) {
+  id: Bytes!
+  fromPaymentAddress: Bytes! # address
+  toPaymentAddress: Bytes! # address
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TokenCreatorUpdated @entity(immutable: true) {
+  id: Bytes!
+  fromCreator: Bytes! # address
+  toCreator: Bytes! # address
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TokenIPFSPathUpdated @entity(immutable: true) {
+  id: Bytes!
+  tokenId: BigInt! # uint256
+  indexedTokenIPFSPath: String! # string
+  tokenIPFSPath: String! # string
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Transfer @entity(immutable: true) {
+  id: Bytes!
+  from: Bytes! # address
+  to: Bytes! # address
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
