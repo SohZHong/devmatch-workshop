@@ -1,217 +1,335 @@
 # Devmatch The Graph Workshop
 
 > [!NOTE]
-> This is the third checkpoint for our workshop. If you missed the first two checkpoints, check the [`checkpoint-one` branch README](https://github.com/SohZHong/devmatch-workshop/blob/checkpoint-one/README.md) or the [`checkpoint-two` branch README](https://github.com/SohZHong/devmatch-workshop/blob/checkpoint-two/README.md)
+> This is the fourth and final checkpoint for our workshop. If you missed the first three checkpoints, check them out:
+>
+> 1. [`checkpoint-one` branch README](https://github.com/SohZHong/devmatch-workshop/blob/checkpoint-one/README.md)
+> 2. [`checkpoint-two` branch README](https://github.com/SohZHong/devmatch-workshop/blob/checkpoint-two/README.md)
+> 3. [`checkpoint-three` branch README](https://github.com/SohZHong/devmatch-workshop/blob/checkpoint-three/README.md)
 
-## Checkpoint 3: Enrich Subgraph NFTs with Token API
+## Checkpoint 4: Supporting Multiple Marketplaces
 
-This step walks you through fetching the metadata (e.g. name, image, attribute) for each NFT from your subgraph using the Token API.
+Now that we’ve successfully indexed ArtBlocks, we’ll expand our subgraph to support another NFT marketplace, [Foundation](https://foundation.app/).
 
-### Folder Structure
+Foundation uses a **proxy contract pattern**, so we’ll take special care when generating code and updating configurations.
 
-For this checkpoint, our folder structure will look like this:
+### 1. Understand the Proxy + Implementation Setup
 
-```
-nft-subgraph-frontend/
-├── .env                              # Contains your GRAPH_TOKEN_API_KEY
-├── app/
-│   ├── api/
-│   │   └── metadata/route.ts         # API route to fetch NFT metadata from Token API
-│   └── page.tsx                      # Main page: fetch NFTs and metadata client-side
-├── subgraph/
-│   ├── client.ts                     # GraphQL client
-│   ├── index.ts                      # Central export
-│   ├── types.ts                      # NFT interface
-│   └── queries/
-│       └── getNFTs.ts                # Subgraph query
-```
+Foundation uses:
 
-### 1. Get an API Token
+- [Proxy Contract](https://etherscan.io/token/0x3B3ee1931Dc30C1957379FAc9aba94D1C48a5405): The main entry point that users interact with.
+- [Implementation Contract](https://etherscan.io/token/0xe7C29cba93ef8017C7824DD0f25923c38d08065c): The logic contract that contains ABI and bytecode.
 
-Go to [The Graph Market](https://thegraph.market/dashboard) and log in with your preferred method.
+Since The Graph uses ABI for codegen, but listens to events from the deployed address, we:
 
-Click on "Create New Key" under API Keys to generate an API token.
-![API key creation](/readme-images/token-api-key.png)
+- Generate the subgraph from the implementation contract, but
+- Point our `subgraph.yaml` and `networks.json` to the proxy address.
 
-Save it to your `.env` file:
+### 2. Generate Code Using the Implementation Address
 
-```env
-GRAPH_TOKEN_API_KEY=<your_api_key_here>
+Use the `graph add` CLI tool with the **implementation contract address** to generate code with the correct ABI:
+
+```bash
+graph add 0xe7C29cba93ef8017C7824DD0f25923c38d08065c
 ```
 
-> [!IMPORTANT]
-> This secret is not exposed to the client. Only the `/api/metadata` route will use it.
+This step generates/updates:
 
-### 2. Token API Call Logic
+- `schema.graphql`
+- `subgraph.yaml`
+- ABIs folder with correct ABI
+- `generated/` and `mapping.ts` boilerplate
 
-Inside `app/api/metadata/route.ts`, we will store our server-side API handler that proxies Token API requests.
+### 3. Point to the Proxy Address
 
-```typescript
-import { NextRequest } from 'next/server';
+Update your config files so the subgraph listens to actual on-chain events:
 
-export async function GET(req: NextRequest) {
-  const apiKey = process.env.GRAPH_TOKEN_API_KEY;
-  const searchParams = req.nextUrl.searchParams;
-  const contract = searchParams.get('contract');
-  const tokenId = searchParams.get('tokenId');
+In `subgraph.yaml`:
 
-  if (!apiKey) {
-    return new Response('Missing api key', { status: 400 });
+Replace the `source.address` field under the name "FNDNFT721" with `0x3B3ee1931Dc30C1957379FAc9aba94D1C48a5405` (Proxy Contract Address).
+
+```yaml
+- kind: ethereum
+  name: FNDNFT721
+  network: mainnet
+  source:
+    address: '0x3B3ee1931Dc30C1957379FAc9aba94D1C48a5405' # 0xe7C29cba93ef8017C7824DD0f25923c38d08065c to 0x3B3ee1931Dc30C1957379FAc9aba94D1C48a5405
+    abi: FNDNFT721
+    startBlock: 14087953 # To be edited
+```
+
+In `networks.json`:
+
+Also replace the `address` field here and add a `startBlock` field, leave it empty for now
+
+```json
+  "FNDNFT721": {
+    "address": "0x3B3ee1931Dc30C1957379FAc9aba94D1C48a5405",
+    // Newly added
+    "startBlock": "<TO_BE_FILLED>"
   }
+```
 
-  if (!contract || !tokenId) {
-    return new Response('Missing params', { status: 400 });
-  }
+### 4. Find the Start Block on Etherscan
 
-  const url = `https://token-api.thegraph.com/nft/items/evm/contract/${contract}/token_id/${tokenId}?network_id=mainnet`;
+To reduce indexing time and avoid unnecessary data, we’ll find the earliest block where the proxy emitted events.
 
-  try {
-    const res = await fetch(url, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-      },
-    });
+1. Go to Etherscan.
+2. Click the "Transfers" tab.
+3. Scroll down and navigate to the last page (oldest tx).
+4. Copy the block number of the first ever transaction (this will be your startBlock).
 
-    if (!res.ok) {
-      return new Response(`Token API Error: ${res.statusText}`, {
-        status: 500,
-      });
+![Last block example](/readme-images/foundation-start-block.png)
+
+Paste this value into both:
+
+- `subgraph.yaml` -> startBlock: <value>
+- `networks.json` -> startBlock: <value>
+
+Your final code snippets should look like this in both files:
+
+- `subgraph.yaml`
+
+```yaml
+- kind: ethereum
+  name: FNDNFT721
+  network: mainnet
+  source:
+    address: '0xe7C29cba93ef8017C7824DD0f25923c38d08065c'
+    abi: FNDNFT721
+    startBlock: 16158655
+```
+
+- `networks.json`
+
+```json
+    "FNDNFT721": {
+      "address": "0x3B3ee1931Dc30C1957379FAc9aba94D1C48a5405",
+      "startBlock": 16158655
     }
+```
 
-    const json = await res.json();
-    return Response.json(json);
-  } catch (err) {
-    return new Response('Fetch error', { status: 500 });
+### 5. Updating the Schema and Mappings for Multi-Market Support
+
+To handle NFTs from both ArtBlocks and Foundation in a unified way, we’ll refactor the schema and simplify our mappings. This ensures:
+
+#### 5.1 Edit `schema.graphql`
+
+We’ll keep only the NFT entity and introduce a new enum called `Protocol` to distinguish between marketplaces.
+
+Remove all the unnecessary entities and fields since they will not be used. Your final code should look like this:
+
+```graphql
+enum Protocol {
+  ARTBLOCKS
+  FOUNDATION
+}
+
+type NFT @entity {
+  id: ID!
+  contract: Bytes! # address
+  owner: Bytes! # address
+  tokenId: BigInt! # uint256
+  protocol: Protocol!
+}
+```
+
+> [!NOTE]
+> The protocol enum helps the frontend know which marketplace each NFT belongs to, enabling filtering or grouping.
+
+#### 5.2 Run `graph codegen`
+
+After updating `schema.graphql`, regenerate the TypeScript bindings:
+
+```bash
+graph codegen
+```
+
+> [!NOTE]
+> This command ensures your TypeScript mappings recognize the updated entity fields (like protocol) and enum types.
+
+#### 5.3 Clean up the newly generated `fndnft-721.ts` file under `/src` folder
+
+Delete all auto-generated handlers that you don’t need (e.g. approvals or bid events). Similar to Artblocks, keep only the `handleMint` and `handleTransfer` and slightly update them to also assign the protocol.
+
+Your code should look like this (very similar to Artblock's):
+
+```typescript
+import {
+  Minted as MintedEvent,
+  Transfer as TransferEvent,
+} from '../generated/FNDNFT721/FNDNFT721';
+import { NFT } from '../generated/schema';
+
+export function handleMinted(event: MintedEvent): void {
+  let entity = new NFT('Foundation-' + event.params.tokenId.toString());
+  entity.owner = event.params.creator;
+  entity.tokenId = event.params.tokenId;
+  entity.contract = event.address;
+  entity.protocol = 'Foundation';
+  entity.save();
+}
+
+export function handleTransfer(event: TransferEvent): void {
+  let entity = NFT.load('Foundation-' + event.params.tokenId.toString());
+
+  if (!entity) {
+    entity = new NFT('Foundation-' + event.params.tokenId.toString());
+  }
+  entity.owner = event.params.to;
+  entity.tokenId = event.params.tokenId;
+  entity.contract = event.address;
+  entity.protocol = 'Foundation';
+
+  entity.save();
+}
+```
+
+> [!NOTE]
+> The protocol specific prefix when creating the ID is to prevent collision of similar token ids and promote uniqueness.
+
+#### 5.4 Modify the mappings file (`/src/gen-art-721-core.ts`) for Artblocks:
+
+Modify the `handleMint` and `handleTransfer` functions in mapping.ts to include:
+
+```typescript
+entity.protocol = 'Artblocks';
+```
+
+Modify the creation of ids to include the protocol specific prefix, example:
+
+```typescript
+let entity = new NFT('Artblocks-' + event.params._tokenId.toString());
+```
+
+Your final code should look like this:
+
+```typescript
+import {
+  Transfer as TransferEvent,
+  Mint as MintEvent,
+} from '../generated/GenArt721Core/GenArt721Core';
+import { NFT } from '../generated/schema';
+
+export function handleMint(event: MintEvent): void {
+  let entity = new NFT('Artblocks-' + event.params._tokenId.toString());
+  entity.owner = event.params._to;
+  entity.tokenId = event.params._tokenId;
+  entity.contract = event.address;
+  entity.protocol = 'Artblocks';
+  entity.save();
+}
+
+export function handleTransfer(event: TransferEvent): void {
+  // Retrieve NFT entity by ID
+  let entity = NFT.load('Artblocks-' + event.params.tokenId.toString());
+
+  if (!entity) {
+    entity = new NFT('Artblocsk-' + event.params.tokenId.toString());
+  }
+
+  entity.owner = event.params.to;
+  entity.contract = event.address;
+  entity.tokenId = event.params.tokenId;
+  entity.protocol = 'Artblocks';
+
+  entity.save();
+}
+```
+
+> [!NOTE]
+> Now the same GraphQL query can return NFTs from both sources, and your frontend can easily split them based on the `protocol` enum.
+
+#### 5.5 Clean `subgraph.yaml`
+
+Lastly, we will clean the subgraph yaml by/to:
+
+- Remove handlers for unused events (e.g., Approval, ApprovalForAll)
+- Ensure entities: contains only `NFT`
+- Add the correct ABI and start block for Foundation
+- Your event handlers should only include `Mint` and `Transfer`
+
+Your final `subgraph.yaml` will look like this:
+
+```yaml
+specVersion: 1.2.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: GenArt721Core
+    network: mainnet
+    source:
+      address: '0xa7d8d9ef8D8Ce8992Df33D8b8CF4Aebabd5bD270'
+      abi: GenArt721Core
+      startBlock: 11437151
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - NFT
+      abis:
+        - name: GenArt721Core
+          file: ./abis/GenArt721Core.json
+      eventHandlers:
+        - event: Mint(indexed address,indexed uint256,indexed uint256)
+          handler: handleMint
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/gen-art-721-core.ts
+  # Edited section
+  - kind: ethereum
+    name: FNDNFT721
+    network: mainnet
+    source:
+      address: '0xe7C29cba93ef8017C7824DD0f25923c38d08065c'
+      abi: FNDNFT721
+      startBlock: 16158655
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      # We only call NFT within the mappings file
+      entities:
+        - NFT
+      abis:
+        - name: FNDNFT721
+          file: ./abis/FNDNFT721.json
+      eventHandlers:
+        # Leave Minted and Transfer only
+        - event: Minted(indexed address,indexed uint256,indexed string,string)
+          handler: handleMinted
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/fndnft-721.ts
+```
+
+### 6. Deploy and test the Subgraph
+
+Refer to [`checkpoint-one`](https://github.com/SohZHong/devmatch-workshop/blob/checkpoint-one/README.md) for detailed steps for deployment and testing.
+
+Due to previous authentication, we do not have to reauthenticate and can just run:
+
+```bash
+graph build
+graph deploy nft-tracker-ethereum
+```
+
+You can now test your subgraph with the following query:
+
+```graphql
+{
+  nfts(first: 5) {
+    id
+    contract
+    owner
+    tokenId
+    protocol
   }
 }
 ```
 
-### 3. Create the `fetchMetadata` Client Helper
-
-At the top of your `app/page.tsx`, define this helper function. It calls your API route that fetches metadata securely via The Graph’s Token API:
-
-```tsx
-const fetchMetadata = async (contract: string, tokenId: string) => {
-  const res = await fetch(
-    `api/metadata?contract=${contract}&tokenId=${tokenId}`
-  );
-
-  if (!res.ok) return null;
-  return res.json();
-};
-```
-
-We want to keep our secret API key secure (on the server), so instead of calling the external Token API directly in the frontend, we route requests through our own `/api/metadata` API handler.
-
-### 4. Display NFT + Metadata
-
-Now, update the default exported page component to:
-
-1. Fetch NFT data from your subgraph
-2. For each NFT, fetch its metadata using the helper
-3. Render the full result (including name and image, if available)
-
-```tsx
-// app/page.tsx (continued)
-export default async function Home() {
-  const nfts = await getNFTs(5);
-
-  // Fetch data from the route we just created
-  const enrichedNFTs = await Promise.all(
-    nfts.map(async (nft) => {
-      const meta = await fetchMetadata(nft.contract, String(nft.tokenId));
-      // The endpoint returns a "data" array so we have to access it with 0 index
-      return { ...nft, metadata: meta.data[0] };
-    })
-  );
-
-  return (
-    <main className='p-8'>
-      <h1 className='text-xl font-bold mb-4'>NFTs with Metadata</h1>
-      <ul className='space-y-6'>
-        {enrichedNFTs.map((nft) => (
-          <li key={nft.id}>
-            <p>
-              <strong>ID:</strong> {nft.id}
-            </p>
-            <p>
-              <strong>Token ID:</strong> {nft.tokenId}
-            </p>
-            <p>
-              <strong>Owner:</strong> {nft.owner}
-            </p>
-            {nft.metadata?.name && (
-              <p>
-                <strong>Name:</strong> {nft.metadata.name}
-              </p>
-            )}
-            {/* We render the images of NFTs that have them */}
-            {nft.metadata?.image && (
-              <Image
-                width={100}
-                height={100}
-                src={nft.metadata.image}
-                alt={nft.metadata.name || 'NFT ' + nft.id}
-                className='w-48 h-48 object-cover mt-2'
-              />
-            )}
-          </li>
-        ))}
-      </ul>
-    </main>
-  );
-}
-```
-
-### 5. Run the App
-
-Now that we’ve added metadata and are displaying NFT images from The Graph Token API, it’s time to run the app:
-
-```bash
-yarn dev
-```
-
-However, when the NFT's are loaded, you may encounter the following error in the browser:
-![NextJS Image Error](/readme-images/nextjs-config-image-error.png)
-
-This happens becase Next.js uses image optimization and restricts image domains by default for performance/security reasons.
-
-### 6. Fix Image Host Whitelisting in next.config.ts
-
-To resolve the error, we need to explicitly allow the image domain used by the NFT metadata (e.g., ArtBlocks):
-
-1. Open your `next.config.ts` file at the root.
-2. Add the following configuration:
-
-```typescript
-import type { NextConfig } from 'next';
-
-const nextConfig: NextConfig = {
-  /* config options here */
-  images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'media-proxy.artblocks.io', // Change or add others according to the hostname specified in the error
-        port: '',
-      },
-    ],
-  },
-};
-
-export default nextConfig;
-```
-
-> [!IMPORTANT]
-> If you’re indexing NFTs from multiple sources, you may need to add more `remotePatterns` entries for different domains.
-
-### 7. Restart the Dev Server
-
-After editing `next.config.ts`, you must restart your development server:
-
-```bash
-yarn dev
-```
-
-The images should now load properly!
+Congratulations! You now have a subgraph that queries two protocols at once
