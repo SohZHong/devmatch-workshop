@@ -5,23 +5,26 @@ import {
 import { NFT } from '../generated/schema';
 
 export function handleMint(event: MintEvent): void {
-  let entity = new NFT(event.params._tokenId.toString());
+  let entity = new NFT('Artblocks-' + event.params._tokenId.toString());
   entity.owner = event.params._to;
   entity.tokenId = event.params._tokenId;
   entity.contract = event.address;
+  entity.protocol = 'Artblocks';
   entity.save();
 }
+
 export function handleTransfer(event: TransferEvent): void {
   // Retrieve NFT entity by ID
-  let entity = NFT.load(event.params.tokenId.toString());
+  let entity = NFT.load('Artblocks-' + event.params.tokenId.toString());
 
   if (!entity) {
-    entity = new NFT(event.params.tokenId.toString());
+    entity = new NFT('Artblocsk-' + event.params.tokenId.toString());
   }
 
   entity.owner = event.params.to;
   entity.contract = event.address;
   entity.tokenId = event.params.tokenId;
+  entity.protocol = 'Artblocks';
 
   entity.save();
 }
