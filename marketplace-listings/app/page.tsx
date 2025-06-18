@@ -1,5 +1,4 @@
 import { getNFTs } from '@/subgraph';
-import { metadata } from './layout';
 import Image from 'next/image';
 
 const fetchMetadata = async (contract: string, tokenId: string) => {
