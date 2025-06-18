@@ -1,7 +1,7 @@
 # Devmatch The Graph Workshop
 
 > [!NOTE]
-> This is the fourth and final checkpoint for our workshop. If you missed the first three checkpoints, check them out:
+> This is the fourth checkpoint for our workshop. If you missed the first three checkpoints, check them out:
 >
 > 1. [`checkpoint-one` branch README](https://github.com/SohZHong/devmatch-workshop/blob/checkpoint-one/README.md)
 > 2. [`checkpoint-two` branch README](https://github.com/SohZHong/devmatch-workshop/blob/checkpoint-two/README.md)
