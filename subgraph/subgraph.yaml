@@ -26,3 +26,25 @@ dataSources:
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
       file: ./src/gen-art-721-core.ts
+  - kind: ethereum
+    name: FNDNFT721
+    network: mainnet
+    source:
+      address: '0xe7C29cba93ef8017C7824DD0f25923c38d08065c'
+      abi: FNDNFT721
+      startBlock: 16158655
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.9
+      language: wasm/assemblyscript
+      entities:
+        - NFT
+      abis:
+        - name: FNDNFT721
+          file: ./abis/FNDNFT721.json
+      eventHandlers:
+        - event: Minted(indexed address,indexed uint256,indexed string,string)
+          handler: handleMinted
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransfer
+      file: ./src/fndnft-721.ts

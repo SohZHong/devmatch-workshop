@@ -1,6 +1,12 @@
+enum Protocol {
+  ARTBLOCKS
+  FOUNDATION
+}
+
 type NFT @entity {
   id: ID!
   contract: Bytes! # address
   owner: Bytes! # address
   tokenId: BigInt! # uint256
+  protocol: Protocol!
 }
