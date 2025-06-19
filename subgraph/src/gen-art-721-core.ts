@@ -9,7 +9,7 @@ export function handleMint(event: MintEvent): void {
   entity.owner = event.params._to;
   entity.tokenId = event.params._tokenId;
   entity.contract = event.address;
-  entity.protocol = 'Artblocks';
+  entity.protocol = 'ARTBLOCKS';
   entity.save();
 }
 
@@ -24,7 +24,7 @@ export function handleTransfer(event: TransferEvent): void {
   entity.owner = event.params.to;
   entity.contract = event.address;
   entity.tokenId = event.params.tokenId;
-  entity.protocol = 'Artblocks';
+  entity.protocol = 'ARTBLOCKS';
 
   entity.save();
 }
