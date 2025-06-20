@@ -9,6 +9,11 @@ const nextConfig: NextConfig = {
         hostname: 'media-proxy.artblocks.io',
         port: '',
       },
+      {
+        protocol: 'https',
+        hostname: 'ipfs.io',
+        port: '',
+      },
     ],
   },
 };
