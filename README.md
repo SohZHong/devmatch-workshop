@@ -95,7 +95,7 @@ Your final code snippets should look like this in both files:
   name: FNDNFT721
   network: mainnet
   source:
-    address: '0xe7C29cba93ef8017C7824DD0f25923c38d08065c'
+    address: '0x3B3ee1931Dc30C1957379FAc9aba94D1C48a5405'
     abi: FNDNFT721
     startBlock: 16158655
 ```
@@ -166,7 +166,7 @@ export function handleMinted(event: MintedEvent): void {
   entity.owner = event.params.creator;
   entity.tokenId = event.params.tokenId;
   entity.contract = event.address;
-  entity.protocol = 'Foundation';
+  entity.protocol = 'FOUNDATION';
   entity.save();
 }
 
@@ -179,7 +179,7 @@ export function handleTransfer(event: TransferEvent): void {
   entity.owner = event.params.to;
   entity.tokenId = event.params.tokenId;
   entity.contract = event.address;
-  entity.protocol = 'Foundation';
+  entity.protocol = 'FOUNDATION';
 
   entity.save();
 }
@@ -193,7 +193,7 @@ export function handleTransfer(event: TransferEvent): void {
 Modify the `handleMint` and `handleTransfer` functions in mapping.ts to include:
 
 ```typescript
-entity.protocol = 'Artblocks';
+entity.protocol = 'ARTBLOCKS';
 ```
 
 Modify the creation of ids to include the protocol specific prefix, example:
@@ -216,7 +216,7 @@ export function handleMint(event: MintEvent): void {
   entity.owner = event.params._to;
   entity.tokenId = event.params._tokenId;
   entity.contract = event.address;
-  entity.protocol = 'Artblocks';
+  entity.protocol = 'ARTBLOCKS';
   entity.save();
 }
 
@@ -231,7 +231,7 @@ export function handleTransfer(event: TransferEvent): void {
   entity.owner = event.params.to;
   entity.contract = event.address;
   entity.tokenId = event.params.tokenId;
-  entity.protocol = 'Artblocks';
+  entity.protocol = 'ARTBLOCKS';
 
   entity.save();
 }
@@ -285,7 +285,7 @@ dataSources:
     name: FNDNFT721
     network: mainnet
     source:
-      address: '0xe7C29cba93ef8017C7824DD0f25923c38d08065c'
+      address: '0x3B3ee1931Dc30C1957379FAc9aba94D1C48a5405'
       abi: FNDNFT721
       startBlock: 16158655
     mapping:
@@ -320,6 +320,8 @@ graph deploy nft-tracker-ethereum
 
 You can now test your subgraph with the following query:
 
+- Query contracts from both protocols by not specific where clause
+
 ```graphql
 {
   nfts(first: 5) {
@@ -328,6 +330,32 @@ You can now test your subgraph with the following query:
     owner
     tokenId
     protocol
+  }
+}
+```
+
+- Query contracts from Artblocks protocol
+
+```graphql
+{
+  nfts(first: 5, where: { protocol: FOUNDATION }) {
+    id
+    contract
+    owner
+    tokenId
+  }
+}
+```
+
+- Query contracts from Foundation protocol
+
+```graphql
+{
+  nfts(first: 5, where: { protocol: FOUNDATION }) {
+    id
+    contract
+    owner
+    tokenId
   }
 }
 ```
