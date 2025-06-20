@@ -1,4 +1,4 @@
-import { getNFTs } from '@/subgraph';
+import { getNFTByProtocol, getNFTs, Protocol } from '@/subgraph';
 import Image from 'next/image';
 
 const fetchMetadata = async (contract: string, tokenId: string) => {
@@ -11,7 +11,8 @@ const fetchMetadata = async (contract: string, tokenId: string) => {
 };
 
 export default async function Home() {
-  const nfts = await getNFTs(5);
+  // const nfts = await getNFTs(5);
+  const nfts = await getNFTByProtocol(10, 10, Protocol.Foundation);
 
   const enrichedNFTs = await Promise.all(
     nfts.map(async (nft) => {
@@ -44,7 +45,14 @@ export default async function Home() {
               <Image
                 width={100}
                 height={100}
-                src={nft.metadata.image}
+                src={
+                  nft.metadata.image.startsWith('ipfs://')
+                    ? nft.metadata.image.replace(
+                        'ipfs://',
+                        'https://ipfs.io/ipfs/'
+                      )
+                    : nft.metadata.image
+                }
                 alt={nft.metadata.name || 'NFT ' + nft.id}
                 className='w-48 h-48 object-cover mt-2'
               />
