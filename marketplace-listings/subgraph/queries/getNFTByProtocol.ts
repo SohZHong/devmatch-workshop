@@ -17,7 +17,7 @@ interface NFTSearchResults {
   nfts: NFT[];
 }
 
-export async function GetNFTByProtocol(
+export async function getNFTByProtocol(
   first: number = 10,
   skip: number = 0,
   protocol: Protocol
