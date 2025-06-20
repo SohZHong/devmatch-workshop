@@ -3,8 +3,8 @@ import graphClient from '../client';
 import { NFT, Protocol } from '../types';
 
 const GET_NFTS_BY_PROTOCOL_QUERY = gql`
-  query GetNFTByProtocol($first: Int!, $skip: Int!, protocol: Protocol!) {
-    nfts(first: $first, skip: $skip, where: {protocol: $protocol}) {
+  query GetNFTByProtocol($first: Int!, $skip: Int!, $protocol: Protocol!) {
+    nfts(first: $first, skip: $skip, where: { protocol: $protocol }) {
       id
       tokenId
       owner
