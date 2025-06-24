@@ -7,14 +7,14 @@ Each branch contains a different stage of the codebase so you can follow along a
 
 ### 🧭 Checkpoint Branches
 
-| Step | Branch Name                                                                               | Description                               |
-| ---- | ----------------------------------------------------------------------------------------- | ----------------------------------------- |
-| 0    | [`main`](https://github.com/SohZHong/devmatch-workshop/blob/main)                         | Complete Code                             |
-| 1    | [`checkpoint-one`](https://github.com/SohZHong/devmatch-workshop/blob/checkpoint-one)     | First setup / initial code                |
-| 2    | [`checkpoint-two`](https://github.com/SohZHong/devmatch-workshop/blob/checkpoint-two)     | Core feature implementation begins        |
-| 3    | [`checkpoint-three`](https://github.com/SohZHong/devmatch-workshop/blob/checkpoint-three) | Mid-workshop progress                     |
-| 4    | [`checkpoint-four`](https://github.com/SohZHong/devmatch-workshop/blob/checkpoint-four)   | Multiple protocol indexing                |
-| 5    | [`checkpoint-five`](https://github.com/SohZHong/devmatch-workshop/blob/checkpoint-five)   | Final solution / reference implementation |
+| Step | Branch Name                                                                               | Description                              |
+| ---- | ----------------------------------------------------------------------------------------- | ---------------------------------------- |
+| 0    | [`main`](https://github.com/SohZHong/devmatch-workshop/blob/main)                         | Complete Code                            |
+| 1    | [`checkpoint-one`](https://github.com/SohZHong/devmatch-workshop/blob/checkpoint-one)     | Creating a NFT Tracker Subgraph          |
+| 2    | [`checkpoint-two`](https://github.com/SohZHong/devmatch-workshop/blob/checkpoint-two)     | Calling Subgraph From Next.js (Frontend) |
+| 3    | [`checkpoint-three`](https://github.com/SohZHong/devmatch-workshop/blob/checkpoint-three) | Enrich Subgraph NFTs with Token API      |
+| 4    | [`checkpoint-four`](https://github.com/SohZHong/devmatch-workshop/blob/checkpoint-four)   | Supporting Multiple Marketplaces         |
+| 5    | [`checkpoint-five`](https://github.com/SohZHong/devmatch-workshop/blob/checkpoint-five)   | Display NFTs by Protocol                 |
 
 ### 📌 How to Switch Branches
 
