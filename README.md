@@ -12,7 +12,7 @@ Make sure you have the following installed:
 
 - Node.js v18+
 - `yarn` package manager
-- [The Graph CLI](https://thegraph.com/docs/en/developing/quick-start/#installing-the-graph-cli)
+- [The Graph CLI](https://thegraph.com/docs/en/subgraphs/guides/transfer-to-the-graph/#install-the-graph-cli)
 
 ```bash
 yarn global @graphprotocol/graph-cli
